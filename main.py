@@ -195,20 +195,56 @@ def testPich(checkpoint_path, dataloader, model, device, output_dir, args):
 def parse_args():
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(description='DexiNed trainer.')
+  
+    parser.add_argument('--run-mode',
+                        type=str,
+                        default='test',
+                        help='test | train')
     parser.add_argument('--choose_test_data',
                         type=int,
                         default=-1,
-                        help='Already set the dataset for testing choice: 0 - 8')
+                        help='Choose a dataset for testing: 0 - 8')
+    parser.add_argument('--img_width',
+                        type=int,
+                        default=352,
+                        help='Image width for training.') # BIPED 352 BSDS 352/320 MDBD 480
+    parser.add_argument('--img_height',
+                        type=int,
+                        default=352,
+                        help='Image height for training.') # BIPED 480 BSDS 352/320
+    parser.add_argument('--checkpoint_data',
+                        type=str,
+                        default='11/11_model.pth',# 37 for biped 60 MDBD
+                        help='Checkpoint path.')
+    parser.add_argument('--test_img_width',
+                        type=int,
+                        default=512,
+                        help='Image width for testing.')
+    parser.add_argument('--test_img_height',
+                        type=int,
+                        default=512,
+                        help='Image height for testing.')
+    parser.add_argument('--epochs',
+                        type=int,
+                        default=25,
+                        metavar='N',
+                        help='Number of training epochs (default: 25).')
+    parser.add_argument('--pre_trained_model',
+                        type=str,
+                        default=None,
+                        help='pre_trained_model')
+
     # ----------- test -------0--
 
 
     TEST_DATA = DATASET_NAMES[parser.parse_args().choose_test_data] # max 8
     test_inf = dataset_info(TEST_DATA, is_linux=IS_LINUX)
     test_dir = test_inf['data_dir']
-    is_testing =True#  current test -352-SM-NewGT-2AugmenPublish
+    # is_testing =True#  current test -352-SM-NewGT-2AugmenPublish
+    is_testing = True if parser.parse_args().run_mode == 'test'  else False
 
     # Training settings
-    TRAIN_DATA = DATASET_NAMES[0] # BIPED=0, MDBD=6
+    TRAIN_DATA = DATASET_NAMES[2] # BIPED=0, MDBD=6
     train_inf = dataset_info(TRAIN_DATA, is_linux=IS_LINUX)
     train_dir = train_inf['data_dir']
 
@@ -255,18 +291,6 @@ def parse_args():
                         type=bool,
                         default=False,
                         help='use previous trained data')  # Just for test
-    parser.add_argument('--checkpoint_data',
-                        type=str,
-                        default='10/10_model.pth',# 4 6 7 9 14
-                        help='Checkpoint path from which to restore model weights from.')
-    parser.add_argument('--test_img_width',
-                        type=int,
-                        default=test_inf['img_width'],
-                        help='Image width for testing.')
-    parser.add_argument('--test_img_height',
-                        type=int,
-                        default=test_inf['img_height'],
-                        help='Image height for testing.')
     parser.add_argument('--res_dir',
                         type=str,
                         default='result',
@@ -275,12 +299,6 @@ def parse_args():
                         type=int,
                         default=50,
                         help='The number of batches to wait before printing test predictions.')
-
-    parser.add_argument('--epochs',
-                        type=int,
-                        default=17,
-                        metavar='N',
-                        help='Number of training epochs (default: 25).')
     parser.add_argument('--lr',
                         default=1e-4,
                         type=float,
@@ -306,14 +324,6 @@ def parse_args():
     parser.add_argument('--tensorboard',type=bool,
                         default=True,
                         help='Use Tensorboard for logging.'),
-    parser.add_argument('--img_width',
-                        type=int,
-                        default=352,
-                        help='Image width for training.') # BIPED 400 BSDS 352/320 MDBD 480
-    parser.add_argument('--img_height',
-                        type=int,
-                        default=352,
-                        help='Image height for training.') # BIPED 480 BSDS 352/320
     parser.add_argument('--channel_swap',
                         default=[2, 1, 0],
                         type=int)
