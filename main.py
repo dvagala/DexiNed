@@ -377,6 +377,9 @@ def main(args):
             model.load_state_dict(torch.load(checkpoint_path,
                                          map_location=device))
             print('Training restarted from> ',checkpoint_path)
+
+        if args.pre_trained_model != None:
+            model.load_state_dict(torch.load(args.pre_trained_model, map_location=device))
         dataset_train = BipedDataset(args.input_dir,
                                      img_width=args.img_width,
                                      img_height=args.img_height,
